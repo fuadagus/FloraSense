@@ -1,11 +1,13 @@
 import React from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import PlantIdentifier from './PlantIdentifier'; // Adjust the path as necessary
+import TabNavigation from './TabNavigation';
 
 const App = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <PlantIdentifier />
+      {/* <PlantIdentifier /> */}
+      <TabNavigation />
     </SafeAreaView>
   );
 };
