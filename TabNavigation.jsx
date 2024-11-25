@@ -7,7 +7,7 @@ import Map from './Map';
 
 // Screens for Plant Identifier Stack
 import HomeScreen from './src/components/identifier/HomeScreen';
-import OneClickScreen from './src/components/identifier/OneClickScreen';
+// import OneClickScreen from './src/components/identifier/OneClickScreen';
 import AdvanceScreen from './src/components/identifier/AdvanceScreen';
 
 // Create Navigators
@@ -25,7 +25,7 @@ const PlantIdentifierStack = () => (
     }}
   >
     <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Mode Selection' }} />
-    <Stack.Screen name="OneClickScreen" component={OneClickScreen} options={{ title: 'One Click Identifier' }} />
+    {/* <Stack.Screen name="OneClickScreen" component={OneClickScreen} options={{ title: 'One Click Identifier' }} /> */}
     <Stack.Screen name="AdvanceScreen" component={AdvanceScreen} options={{ title: 'Advanced Mode' }} />
   </Stack.Navigator>
 );

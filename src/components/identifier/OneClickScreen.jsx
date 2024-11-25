@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { launchCamera } from 'react-native-image-picker';
 import axios from 'axios';
+import HomeScreen from './HomeScreen';
 
 const OneClickScreen = () => {
     const [selectedImages, setSelectedImages] = useState([]);
@@ -33,7 +34,9 @@ const OneClickScreen = () => {
         });
 
         if (result.didCancel) {
-            Alert.alert('Camera Cancelled', 'You need to take a photo to proceed.');
+            Alert.alert('Dibatalkan', 'Anda perlu mengambil foto untuk mengidentifikasi.');
+            // Back to home stack
+            navigation.navigate('Home'); // Assuming you have a navigation prop and a 'Home' route
         } else if (result.assets) {
             setSelectedImages(result.assets);
             identifyPlant(result.assets);

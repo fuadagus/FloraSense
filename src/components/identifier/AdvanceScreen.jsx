@@ -12,6 +12,12 @@ import {
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import axios from 'axios';
 import { Dropdown } from 'react-native-element-dropdown';
+// import { API_KEY, API_URL } from '@env';
+import Config from "react-native-config";
+
+const API_URL = Config.API_URL;
+const API_KEY = Config.API_KEY; 
+
 
 const AdvanceScreen = () => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -21,9 +27,10 @@ const AdvanceScreen = () => {
   const [imageCount, setImageCount] = useState(1); // Default to one image
   const [mode, setMode] = useState(''); // Mode selection
   const [organ, setOrgan] = useState('leaf'); // Default organ
+  console.log('API_KEY:', API_KEY);
 
-  const API_KEY = '2b10qZDQL5xzHdc9c2b5mKZ4ku'; // Replace with your API key
-  const API_URL = 'https://my-api.plantnet.org/v2/identify/all';
+  // const API_KEY = '2b10qZDQL5xzHdc9c2b5mKZ4ku'; // Replace with your API key
+  // const API_URL = 'https://my-api.plantnet.org/v2/identify/all';
 
   const languages = [
     { label: 'Bahasa Indonesia', value: 'id' },
