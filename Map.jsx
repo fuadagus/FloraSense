@@ -1,11 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import MapboxGL from '@rnmapbox/maps';
+
+MapboxGL.setAccessToken('pk.eyJ1IjoiZnVhZGFndXNzYWxpbSIsImEiOiJjbGcyZ2Q1ZXMwMHZ2M2RuMW9uOHZ0cDNoIn0.odEIHnmRUwKd2wUq_nBowQ');
 
 const Map = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Map Tab</Text>
-      {/* Add your Map functionality here */}
+      <MapboxGL.MapView style={styles.map}>
+        <MapboxGL.Camera
+          zoomLevel={12}
+          centerCoordinate={[ 110.3777, -7.7709]} // Replace with your coordinates
+        />
+        {/* Add layers, markers, or shapes here */}
+      </MapboxGL.MapView>
     </View>
   );
 };
@@ -13,11 +21,9 @@ const Map = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  text: {
-    fontSize: 18,
+  map: {
+    flex: 1,
   },
 });
 

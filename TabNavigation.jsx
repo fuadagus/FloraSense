@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import PlantIdentifier from './PlantIdentifier';
 import Map from './Map';
 
@@ -18,14 +18,15 @@ const TabNavigation = () => {
             let iconName;
 
             if (route.name === 'Plant Identifier') {
-              iconName = 'nature';
+              iconName = 'leaf';
             } else if (route.name === 'Map') {
               iconName = 'map';
             } else if (route.name === 'Another Tab') {
               iconName = 'menu';
             }
+            <FontAwesome name={iconName} size={size} color={color} />
 
-            return <Icon name={iconName} size={size} color={color} />;
+            // return <Icon name={iconName} size={size} color={color} />;
           },
           tabBarActiveTintColor: 'green',
           tabBarInactiveTintColor: 'gray',

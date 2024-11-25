@@ -50,7 +50,7 @@ const PlantIdentifier = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Plant Identifier</Text>
+      <Text style={styles.title}>Identifikasi Tanaman</Text>
       <Button title="Pilih gambar tanaman" onPress={pickImage} />
       {selectedImage && (
         <Image
