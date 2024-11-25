@@ -7,39 +7,26 @@ import {
   Image,
   ActivityIndicator,
   FlatList,
-  TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import axios from 'axios';
 import { Dropdown } from 'react-native-element-dropdown';
-// import { API_KEY, API_URL } from '@env';
 import Config from "react-native-config";
 
 const API_URL = Config.API_URL;
-const API_KEY = Config.API_KEY; 
-
+const API_KEY = Config.API_KEY;
 
 const AdvanceScreen = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
   const [language, setLanguage] = useState('id'); // Default language
-  const [imageCount, setImageCount] = useState(1); // Default to one image
-  const [mode, setMode] = useState(''); // Mode selection
   const [organ, setOrgan] = useState('leaf'); // Default organ
-  console.log('API_KEY:', API_KEY);
-
-  // const API_KEY = '2b10qZDQL5xzHdc9c2b5mKZ4ku'; // Replace with your API key
-  // const API_URL = 'https://my-api.plantnet.org/v2/identify/all';
 
   const languages = [
     { label: 'Bahasa Indonesia', value: 'id' },
     { label: 'English', value: 'en' },
-  ];
-
-  const imageCounts = [
-    { label: '1 Image', value: 1 },
-    { label: '5 Images', value: 5 },
   ];
 
   const organs = [
@@ -51,9 +38,9 @@ const AdvanceScreen = () => {
 
   // Function to pick images from the gallery
   const pickImage = async () => {
-    const result = await launchImageLibrary({ mediaType: 'photo', quality: 1, selectionLimit: imageCount });
+    const result = await launchImageLibrary({ mediaType: 'photo', quality: 1, selectionLimit: 5 });
     if (result.assets) {
-      setSelectedImages(result.assets);
+      setSelectedImages(result.assets.map(image => ({ ...image, organ: 'leaf' })));
     }
   };
 
@@ -61,7 +48,7 @@ const AdvanceScreen = () => {
   const takePhoto = async () => {
     const result = await launchCamera({ mediaType: 'photo', quality: 1 });
     if (result.assets) {
-      setSelectedImages(result.assets);
+      setSelectedImages(result.assets.map(image => ({ ...image, organ: 'leaf' })));
     }
   };
 
@@ -78,8 +65,9 @@ const AdvanceScreen = () => {
         type: image.type,
         name: image.fileName || `photo${index}.${image.type.split('/')[1]}`,
       });
+      console.log('organ image:', image.organ);
+      formData.append('organs', image.organ); // Specify the plant part for each image
     });
-    formData.append('organs', organ); // Specify the plant part
 
     const params = {
       'include-related-images': true, // Include related images
@@ -98,8 +86,6 @@ const AdvanceScreen = () => {
         },
       });
 
-      console.log('Respons API Lengkap:', response.data.results[0]);
-
       setResults(response.data.results || []);
     } catch (error) {
       console.error('Error identifying plant:', error);
@@ -112,70 +98,43 @@ const AdvanceScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Identifikasi Tanaman</Text>
-
-      {mode === '' && (
-        <View style={styles.modeSelection}>
-          <TouchableOpacity style={styles.card} onPress={() => { setMode('oneClick'); setImageCount(1); setOrgan('leaf'); }}>
-            <Text style={styles.cardText}>One Click</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.card} onPress={() => setMode('advance')}>
-            <Text style={styles.cardText}>Advance</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {mode === 'oneClick' && (
-        <View>
-          <Button title="Take Photo" onPress={takePhoto} />
-          <Button title="Pick Image from Gallery" onPress={pickImage} />
-          <Button title="Back" onPress={() => setMode('')} />
-        </View>
-      )}
-
-      {mode === 'advance' && (
-        <View>
-          <Dropdown
-            style={styles.dropdown}
-            data={languages}
-            labelField="label"
-            valueField="value"
-            placeholder="Pilih Bahasa"
-            value={language}
-            onChange={(item) => setLanguage(item.value)}
-          />
-
-          <Dropdown
-            style={styles.dropdown}
-            data={imageCounts}
-            labelField="label"
-            valueField="value"
-            placeholder="Pilih Jumlah Gambar"
-            value={imageCount}
-            onChange={(item) => setImageCount(item.value)}
-          />
-
-          <Dropdown
-            style={styles.dropdown}
-            data={organs}
-            labelField="label"
-            valueField="value"
-            placeholder="Pilih Organ"
-            value={organ}
-            onChange={(item) => setOrgan(item.value)}
-          />
-
-          <Button title="Pilih gambar tanaman" onPress={pickImage} />
-          <Button title="Back" onPress={() => setMode('')} />
-        </View>
-      )}
-
-      {selectedImages.length > 0 && selectedImages.map((image, index) => (
-        <Image
-          key={index}
-          source={{ uri: image.uri }}
-          style={styles.imagePreview}
+      <View>
+        <Dropdown
+          style={styles.dropdown}
+          data={languages}
+          labelField="label"
+          valueField="value"
+          placeholder="Pilih Bahasa"
+          value={language}
+          onChange={(item) => setLanguage(item.value)}
         />
-      ))}
+
+        <Button title="Pilih gambar tanaman" onPress={pickImage} />
+      </View>
+
+      <ScrollView>
+        {selectedImages.length > 0 && selectedImages.map((image, index) => (
+          <View key={index} style={styles.imageContainer}>
+            <Image
+              source={{ uri: image.uri }}
+              style={styles.imagePreview}
+            />
+            <Dropdown
+              style={styles.dropdown}
+              data={organs}
+              labelField="label"
+              valueField="value"
+              placeholder="Pilih Organ"
+              value={image.organ}
+              onChange={(item) => {
+                const newSelectedImages = [...selectedImages];
+                newSelectedImages[index].organ = item.value;
+                setSelectedImages(newSelectedImages);
+              }}
+            />
+          </View>
+        ))}
+      </ScrollView>
       <Button title="Identifikasi tanaman" onPress={identifyPlant} />
       {loading && <ActivityIndicator size="large" color="#00ff00" />}
       <FlatList
@@ -227,12 +186,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     height: 40,
+    width: '100%',
+  },
+  imageContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   imagePreview: {
     width: '100%',
     height: 200,
     resizeMode: 'contain',
-    marginVertical: 20,
+    marginBottom: 10,
   },
   result: {
     padding: 10,
@@ -249,22 +214,6 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 16,
-  },
-  modeSelection: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-  card: {
-    width: '40%',
-    padding: 20,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  cardText: {
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 });
 
