@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
 
 MapboxGL.setAccessToken('pk.eyJ1IjoiZnVhZGFndXNzYWxpbSIsImEiOiJjbGcyZ2Q1ZXMwMHZ2M2RuMW9uOHZ0cDNoIn0.odEIHnmRUwKd2wUq_nBowQ');
@@ -8,6 +8,8 @@ const Map = () => {
   return (
     <View style={styles.container}>
       <MapboxGL.MapView style={styles.map}>
+      {/* <Text>Map</Text> */}
+
         <MapboxGL.Camera
           zoomLevel={12}
           centerCoordinate={[ 110.3777, -7.7709]} // Replace with your coordinates
