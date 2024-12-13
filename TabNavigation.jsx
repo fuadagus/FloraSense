@@ -3,12 +3,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
-import Map from './Map';
-
+import Map from './src/screens/map/MapScreen';
 // Screens for Plant Identifier Stack
-import HomeScreen from './src/components/identifier/HomeScreen';
-import AdvanceScreen from './src/components/identifier/AdvanceScreen';
+import HomeScreen from './src/screens/identifier/HomeScreen';
+import AdvanceScreen from './src/screens/identifier/AdvanceScreen';
 
 // Create Navigators
 const Tab = createBottomTabNavigator();
@@ -24,8 +22,8 @@ const PlantIdentifierStack = () => (
       headerTitleStyle: { fontWeight: 'bold' },
     }}
   >
-    <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Mode Identifikasi' }} />
-    <Stack.Screen name="AdvanceScreen" component={AdvanceScreen} options={{ title: 'Mode Lanjut' }} />
+    <Stack.Screen name="Home" component={HomeScreen} />
+    <Stack.Screen name="AdvanceScreen" component={AdvanceScreen} options={{ title: 'Mode Lanjut Identifikasi' }} />
   </Stack.Navigator>
 );
 
@@ -47,6 +45,7 @@ const TabNavigation = () => (
           }
           return <FontAwesome5 name={iconName} size={size} color={color} />;
         },
+        headerShown: false,
         tabBarActiveTintColor: 'green',
         tabBarInactiveTintColor: 'gray',
       })}

@@ -18,9 +18,10 @@ import axios from 'axios';
 // import { API_KEY, API_URL } from '@env';
 
 import Config from "react-native-config";
+import ThumbnailCard from '../../components/cards/ThumbnailCard';
 
 const API_URL = Config.API_URL;
-const API_KEY = Config.API_KEY; 
+const API_KEY = Config.API_KEY;
 
 
 const HomeScreen = ({ navigation }) => {
@@ -89,6 +90,24 @@ const HomeScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <ThumbnailCard title='Identifikasi Tanaman' imageSrc='./assets/Identification.webp' >
+            <View style={styles.modeSelection}>
+                <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => handleCameraLaunch()}
+                >
+                    <Text style={styles.cardText}>One Click</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => navigation.navigate('AdvanceScreen', { mode: 'advance' })}
+                >
+                    <Text style={styles.cardText}>Advance</Text>
+                </TouchableOpacity>
+            </View>
+            </ThumbnailCard>
+            {/* <Text style={styles.title}>Identifikasi Tanaman</Text> */}
+            
             <Modal
                 animationType="slide"
                 transparent={false}
@@ -126,21 +145,7 @@ const HomeScreen = ({ navigation }) => {
                 </View>
             </Modal>
             {loading && <ActivityIndicator size="large" color="#00ff00" />}
-            <Text style={styles.title}>Pilih Mode</Text>
-            <View style={styles.modeSelection}>
-                <TouchableOpacity
-                    style={styles.card}
-                    onPress={() => handleCameraLaunch()}
-                >
-                    <Text style={styles.cardText}>One Click</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.card}
-                    onPress={() => navigation.navigate('AdvanceScreen', { mode: 'advance' })}
-                >
-                    <Text style={styles.cardText}>Advance</Text>
-                </TouchableOpacity>
-            </View>
+           
         </View>
     );
 };
