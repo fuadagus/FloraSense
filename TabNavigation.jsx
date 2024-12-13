@@ -2,12 +2,12 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
 import Map from './Map';
 
 // Screens for Plant Identifier Stack
 import HomeScreen from './src/components/identifier/HomeScreen';
-// import OneClickScreen from './src/components/identifier/OneClickScreen';
 import AdvanceScreen from './src/components/identifier/AdvanceScreen';
 
 // Create Navigators
@@ -24,9 +24,8 @@ const PlantIdentifierStack = () => (
       headerTitleStyle: { fontWeight: 'bold' },
     }}
   >
-    <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Mode Selection' }} />
-    {/* <Stack.Screen name="OneClickScreen" component={OneClickScreen} options={{ title: 'One Click Identifier' }} /> */}
-    <Stack.Screen name="AdvanceScreen" component={AdvanceScreen} options={{ title: 'Advanced Mode' }} />
+    <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Mode Identifikasi' }} />
+    <Stack.Screen name="AdvanceScreen" component={AdvanceScreen} options={{ title: 'Mode Lanjut' }} />
   </Stack.Navigator>
 );
 
@@ -37,20 +36,25 @@ const TabNavigation = () => (
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
           let iconName;
-          if (route.name === 'Plant Identifier') {
+          if (route.name === 'Identifikasi') {
             iconName = 'leaf';
-          } else if (route.name === 'Map') {
-            iconName = 'map';
+          } else if (route.name === 'Peta') {
+            iconName = 'globe-asia';
+          } else if (route.name === 'Koleksi') {
+            iconName = "archive";
+          } else if (route.name === 'Akun') {
+            iconName = "user";
           }
-          return <FontAwesome name={iconName} size={size} color={color} />;
+          return <FontAwesome5 name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: 'green',
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      {/* Include PlantIdentifier Stack as a Tab */}
-      <Tab.Screen name="Plant Identifier" component={PlantIdentifierStack} />
-      <Tab.Screen name="Map" component={Map} />
+      <Tab.Screen name="Identifikasi" component={PlantIdentifierStack} />
+      <Tab.Screen name="Peta" component={Map} />
+      <Tab.Screen name="Koleksi" component={Map} />
+      <Tab.Screen name="Akun" component={Map} />
     </Tab.Navigator>
   </NavigationContainer>
 );

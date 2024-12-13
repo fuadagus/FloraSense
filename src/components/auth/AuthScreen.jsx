@@ -1,20 +1,20 @@
-// LoginScreen.tsx
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
-import { AuthContext } from './AuthContext';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { AuthContext } from '../../context/AuthContext';
 
-const LoginScreen = ({ navigation }) => {
+const AuthScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useContext(AuthContext);
 
-  const handleLogin = async () => {
-    await login(email, password);
-    navigation.navigate('Home'); // Navigate to a protected screen after successful login
+  const handleLogin = () => {
+    const fakeToken = 'example_token'; // Replace with real API call for token
+    login(fakeToken);
   };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -24,12 +24,11 @@ const LoginScreen = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        secureTextEntry
         value={password}
+        secureTextEntry
         onChangeText={setPassword}
       />
       <Button title="Login" onPress={handleLogin} />
-      <Text onPress={() => navigation.navigate('Register')}>Don't have an account? Register</Text>
     </View>
   );
 };
@@ -38,15 +37,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    textAlign: 'center',
+    marginBottom: 16,
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#ccc',
     borderWidth: 1,
-    marginBottom: 20,
-    paddingLeft: 10,
+    marginBottom: 16,
+    padding: 8,
+    borderRadius: 4,
   },
 });
 
-export default LoginScreen;
+export default AuthScreen;

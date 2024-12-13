@@ -8,11 +8,14 @@ import {
   ActivityIndicator,
   FlatList,
   ScrollView,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import axios from 'axios';
 import { Dropdown } from 'react-native-element-dropdown';
 import Config from "react-native-config";
+import { useNavigation } from '@react-navigation/native'; // Add this import
 
 const API_URL = Config.API_URL;
 const API_KEY = Config.API_KEY;
@@ -23,6 +26,7 @@ const AdvanceScreen = () => {
   const [results, setResults] = useState([]);
   const [language, setLanguage] = useState('id'); // Default language
   const [organ, setOrgan] = useState('leaf'); // Default organ
+  const [modalVisible, setModalVisible] = useState(false);
 
   const languages = [
     { label: 'Bahasa Indonesia', value: 'id' },
@@ -87,12 +91,19 @@ const AdvanceScreen = () => {
       });
 
       setResults(response.data.results || []);
+      setModalVisible(true); // Show the modal with results
     } catch (error) {
       console.error('Error identifying plant:', error);
       alert('Failed to identify the plant. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const navigation = useNavigation(); // Hook for navigation
+
+  const handleNavigateToMap = (scientificName) => {
+    navigation.navigate('Map', { scientificName });
   };
 
   return (
@@ -137,32 +148,55 @@ const AdvanceScreen = () => {
       </ScrollView>
       <Button title="Identifikasi tanaman" onPress={identifyPlant} />
       {loading && <ActivityIndicator size="large" color="#00ff00" />}
-      <FlatList
-        data={results}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.result}>
-            {item.images && item.images.length > 0 && (
-              <Image
-                source={{ uri: item.images[0].url.s }}
-                style={styles.resultImage}
-              />
+
+      <Modal
+      animationType="slide"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+          <FlatList
+            data={results}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.result}>
+                {item.images && item.images.length > 0 && (
+                  <Image
+                    source={{ uri: item.images[0].url.s }}
+                    style={styles.resultImage}
+                  />
+                )}
+                <Text style={styles.resultText}>
+                  Nama ilmiah: {item.species && item.species.scientificName}
+                </Text>
+                <Text style={styles.resultText}>
+                  Nama umum:{' '}
+                  {item.species && item.species.commonNames.length > 0
+                    ? item.species.commonNames.join(', ')
+                    : '-'}
+                </Text>
+                <Text style={styles.resultText}>
+                  Skor kepercayaan: {(item.score * 100).toFixed(2)}%
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleNavigateToMap(item.species.scientificName)}
+                >
+                  <Text style={styles.resultText}>Lihat di Peta</Text>
+                </TouchableOpacity>
+              </View>
             )}
-            <Text style={styles.resultText}>
-              Nama ilmiah: {item.species && item.species.scientificName}
-            </Text>
-            <Text style={styles.resultText}>
-              Nama umum:{' '}
-              {item.species && item.species.commonNames.length > 0
-                ? item.species.commonNames.join(', ')
-                : '-'}
-            </Text>
-            <Text style={styles.resultText}>
-              Skor kepercayaan: {(item.score * 100).toFixed(2)}%
-            </Text>
-          </View>
-        )}
-      />
+          />
+        </View>
+      </View>
+    </Modal>
     </View>
   );
 };
@@ -214,6 +248,27 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 16,
+    color: '#333',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: 'red',
   },
 });
 

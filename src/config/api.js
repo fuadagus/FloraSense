@@ -1,10 +1,24 @@
-import axios from "axios";
+// api.js
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Config from "react-native-config";
 
-export const API_BASE_URL = "https://flora-sense-backend.vercel.app/api"; // Replace with your API URL
-
-export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+const BASE_SERVER_API_URL = Config.BASE_SERVER_API_URL;
+const api = axios.create({
+  baseURL: `${BASE_SERVER_API_URL}`,
 });
+
+api.interceptors.request.use(
+  async (config) => {
+    const token = await AsyncStorage.getItem('token'); // Get the token from async storage
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+export default api;

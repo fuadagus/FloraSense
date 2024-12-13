@@ -85,42 +85,54 @@ const OneClickScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Modal
-                animationType="slide"
-                transparent={false}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.container}>
-                    <FlatList
-                        data={results}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
-                            <View style={styles.result}>
-                                {item.images && item.images.length > 0 && (
-                                    <Image
-                                        source={{ uri: item.images[0].url.s }}
-                                        style={styles.resultImage}
-                                    />
-                                )}
-                                <Text style={styles.resultText}>
-                                    Scientific Name: {item.species?.scientificName || 'N/A'}
-                                </Text>
-                                <Text style={styles.resultText}>
-                                    Common Names:{' '}
-                                    {item.species?.commonNames?.length
-                                        ? item.species.commonNames.join(', ')
-                                        : 'N/A'}
-                                </Text>
-                                <Text style={styles.resultText}>
-                                    Confidence Score: {(item.score * 100).toFixed(2)}%
-                                </Text>
-                            </View>
-                        )}
-                    />
-                    <Button title="Close" onPress={() => setModalVisible(false)} />
-                </View>
-            </Modal>
+           <Modal
+      animationType="slide"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+          <FlatList
+            data={results}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.result}>
+                {item.images && item.images.length > 0 && (
+                  <Image
+                    source={{ uri: item.images[0].url.s }}
+                    style={styles.resultImage}
+                  />
+                )}
+                <Text style={styles.resultText}>
+                  Nama ilmiah: {item.species && item.species.scientificName}
+                </Text>
+                <Text style={styles.resultText}>
+                  Nama umum:{' '}
+                  {item.species && item.species.commonNames.length > 0
+                    ? item.species.commonNames.join(', ')
+                    : '-'}
+                </Text>
+                <Text style={styles.resultText}>
+                  Skor kepercayaan: {(item.score * 100).toFixed(2)}%
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleNavigateToMap(item.species.scientificName)}
+                >
+                  <Text style={styles.resultText}>Lihat di Peta</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        </View>
+      </View>
+    </Modal>
             {loading && <ActivityIndicator size="large" color="#00ff00" />}
         </View>
     );
@@ -147,6 +159,7 @@ const styles = StyleSheet.create({
     },
     resultText: {
         fontSize: 16,
+        color: '#333',
     },
 });
 
