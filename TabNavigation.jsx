@@ -8,6 +8,8 @@ import Map from './src/screens/map/MapScreen';
 import HomeScreen from './src/screens/identifier/HomeScreen';
 import AdvanceScreen from './src/screens/identifier/AdvanceScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
+import EEMap from './src/screens/map/EarthEngineMap';
+import MapScreen from './src/screens/map/MapScreen';
 
 // Create Navigators
 const Tab = createBottomTabNavigator();
@@ -52,7 +54,7 @@ const TabNavigation = () => (
       })}
     >
       <Tab.Screen name="Beranda" component={HomeStack} />
-      <Tab.Screen name="Peta" component={Map} />
+      <Tab.Screen name="Peta" component={MapScreen} />
       <Tab.Screen name="Koleksi" component={Map} />
       <Tab.Screen name="Akun" component={ProfileScreen} />
     </Tab.Navigator>

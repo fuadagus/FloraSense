@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, ActivityIndicator, Button } from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
-import { HStack, Icon, Image, Link, LinkText, Card, Text, Heading, ArrowRightIcon } from '@/components/ui';
+import React, { useState } from 'react';
+import { StyleSheet, View, Button, ActivityIndicator } from 'react-native';
 
-const MapScreen = () => {
+const EEMap = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const openInAppBrowser = async () => {
@@ -52,38 +51,6 @@ const MapScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Card className="p-5 rounded-lg max-w-[360px] m-3">
-        <Image
-          source={require('@/src/assets/paramling.png')}
-          className="mb-6 h-[240px] w-full rounded-md aspect-[263/240]"
-          alt="image"
-        />
-        <Text className="text-sm font-normal mb-2 text-typography-700">
-          Peta Curah Hujan, Temperatur,
-        </Text>
-        <Text className="text-sm font-normal mb-2 text-typography-700">
-          pH Tanah, dan Jenis Tanah
-        </Text>
-        <Heading size="md" className="mb-4">
-          Peta Parameter Lingkungan
-        </Heading>
-        <Link href="" isExternal onPress={openInAppBrowser}>
-          <HStack className="items-center">
-            <LinkText
-              size="sm"
-              className="font-semibold text-info-600 no-underline"
-            >
-              Buka Google Earth Engine
-            </LinkText>
-            <Icon
-              as={ArrowRightIcon}
-              size="sm"
-              className="text-info-600 mt-0.5 ml-0.5"
-            />
-          </HStack>
-        </Link>
-      </Card>
-      
       {isLoading && (
         <ActivityIndicator
           style={styles.loading}
@@ -91,6 +58,7 @@ const MapScreen = () => {
           color="#0000ff"
         />
       )}
+      <Button title="Open Map" onPress={openInAppBrowser} />
     </View>
   );
 };
@@ -109,4 +77,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MapScreen;
+export default EEMap;
