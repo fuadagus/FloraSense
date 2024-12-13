@@ -4,7 +4,7 @@ import { GluestackUIProvider } from "./components/ui/gluestack-ui-provider";
 import { StyleSheet, SafeAreaView, ActivityIndicator, View } from 'react-native';
 import { AuthContext, AuthProvider } from './src/context/AuthContext'; // Adjust the path if necessary
 import TabNavigation from './TabNavigation'; // Adjust the path if necessary
-import AuthScreen from './src/components/auth/AuthScreen'; // Adjust the path if necessary
+import AuthScreen from './src/screens/auth/AuthScreen'; // Adjust the path if necessary
 
 const AppContent = () => {
   const { user, isLoading } = useContext(AuthContext);

@@ -7,13 +7,14 @@ import Map from './src/screens/map/MapScreen';
 // Screens for Plant Identifier Stack
 import HomeScreen from './src/screens/identifier/HomeScreen';
 import AdvanceScreen from './src/screens/identifier/AdvanceScreen';
+import ProfileScreen from './src/screens/profile/ProfileScreen';
 
 // Create Navigators
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 // Plant Identifier Stack Navigator
-const PlantIdentifierStack = () => (
+const HomeStack = () => (
   <Stack.Navigator
     initialRouteName="Home"
     screenOptions={{
@@ -34,8 +35,8 @@ const TabNavigation = () => (
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
           let iconName;
-          if (route.name === 'Identifikasi') {
-            iconName = 'leaf';
+          if (route.name === 'Beranda') {
+            iconName = 'home';
           } else if (route.name === 'Peta') {
             iconName = 'globe-asia';
           } else if (route.name === 'Koleksi') {
@@ -50,10 +51,10 @@ const TabNavigation = () => (
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name="Identifikasi" component={PlantIdentifierStack} />
+      <Tab.Screen name="Beranda" component={HomeStack} />
       <Tab.Screen name="Peta" component={Map} />
       <Tab.Screen name="Koleksi" component={Map} />
-      <Tab.Screen name="Akun" component={Map} />
+      <Tab.Screen name="Akun" component={ProfileScreen} />
     </Tab.Navigator>
   </NavigationContainer>
 );
