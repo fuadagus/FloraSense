@@ -3,9 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     View,
-    Text,
     FlatList,
-    Image,
     Modal,
     Button,
     ActivityIndicator,
@@ -15,6 +13,7 @@ import {
 } from 'react-native';
 import { launchCamera } from 'react-native-image-picker';
 import axios from 'axios';
+import { HStack, Icon, Image, Link, LinkText, Card, Text, Heading, ArrowRightIcon } from '@/components/ui';
 // import { API_KEY, API_URL } from '@env';
 
 import Config from "react-native-config";
@@ -90,24 +89,43 @@ const HomeScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <ThumbnailCard title='Identifikasi Tanaman' imageSrc='./assets/Identification.webp' >
-            <View style={styles.modeSelection}>
+            <Card className="p-5 rounded-lg max-w-[360px] m-3">
                 <TouchableOpacity
-                    style={styles.card}
+
                     onPress={() => handleCameraLaunch()}
                 >
-                    <Text style={styles.cardText}>One Click</Text>
+                    <Image
+                        source={require('@/src/assets/Identification.webp')}
+                        className="mb-6 h-[240px] w-full rounded-md aspect-[263/240]"
+                        alt="image"
+                    />
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.card}
-                    onPress={() => navigation.navigate('AdvanceScreen', { mode: 'advance' })}
-                >
-                    <Text style={styles.cardText}>Advance</Text>
-                </TouchableOpacity>
-            </View>
-            </ThumbnailCard>
+                <Text className="text-sm font-normal mb-2 text-typography-700 max-w-[280px]">
+                    Kenali tanaman di sekitar Anda dengan cepat dan mudah menggunakan teknologi AI
+                </Text>
+                <Link href="" onPress={() => navigation.navigate('AdvanceScreen', { mode: 'advance' })} isExternal >
+                    <HStack className="items-center">
+                        <LinkText
+                            size="sm"
+                            className="font-semibold text-info-600 no-underline"
+                        >
+                            Mode Lanjut
+                        </LinkText>
+                        <Icon
+                            as={ArrowRightIcon}
+                            size="sm"
+                            className="text-info-600 mt-0.5 ml-0.5"
+                        />
+                    </HStack>
+                </Link>
+                <Heading size="md" className="mb-4">
+                    Identifikasi Tanaman
+                </Heading>
+            </Card>
+
+
             {/* <Text style={styles.title}>Identifikasi Tanaman</Text> */}
-            
+
             <Modal
                 animationType="slide"
                 transparent={false}
@@ -145,15 +163,15 @@ const HomeScreen = ({ navigation }) => {
                 </View>
             </Modal>
             {loading && <ActivityIndicator size="large" color="#00ff00" />}
-           
-        </View>
+
+        </View >
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-start', // Changed from 'center' to 'flex-start'
         alignItems: 'center',
         backgroundColor: '#fff',
     },

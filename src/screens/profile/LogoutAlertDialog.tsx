@@ -14,13 +14,24 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
 } from "../../../components/ui";
+import { AuthContext } from "@/src/context/AuthContext";
 
 const LogoutAlertDialog = ({
   openLogoutAlertDialog,
   setOpenLogoutAlertDialog,
 }: any) => {
+  const { logout } = React.useContext(AuthContext);
+
   const handleClose = () => {
     setOpenLogoutAlertDialog(false);
+  };
+  
+  const handleLogout = () => {
+    // Implement your logout logic here
+    logout();
+    console.log("User logged out");
+    handleClose();
+    // For example, you can clear user data and navigate to the login screen
   };
 
   return (
@@ -41,7 +52,7 @@ const LogoutAlertDialog = ({
             <Button variant="outline" action="secondary" onPress={handleClose}>
               <ButtonText>Cancel</ButtonText>
             </Button>
-            <Button action="negative" onPress={handleClose}>
+            <Button action="negative" onPress={handleLogout}>
               <ButtonText className="text-white">Logout</ButtonText>
             </Button>
           </AlertDialogFooter>

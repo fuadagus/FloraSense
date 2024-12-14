@@ -58,12 +58,10 @@ const MapScreen = () => {
           className="mb-6 h-[240px] w-full rounded-md aspect-[263/240]"
           alt="image"
         />
-        <Text className="text-sm font-normal mb-2 text-typography-700">
-          Peta Curah Hujan, Temperatur,
+        <Text className="text-sm font-normal mb-2 max-w-[280px] text-typography-700">
+          Peta Curah Hujan, Temperatur,  pH Tanah, dan Jenis Tanah
         </Text>
-        <Text className="text-sm font-normal mb-2 text-typography-700">
-          pH Tanah, dan Jenis Tanah
-        </Text>
+        
         <Heading size="md" className="mb-4">
           Peta Parameter Lingkungan
         </Heading>

@@ -8,8 +8,25 @@ const AuthScreen = () => {
   const { login } = useContext(AuthContext);
 
   const handleLogin = () => {
-    const fakeToken = 'example_token'; // Replace with real API call for token
-    login(fakeToken);
+    fetch('http://192.168.15.241:4000/auth/login', {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+      .then(response => response.json())
+      .then(data => {
+      if (data.token) {
+        login(data.token);
+      } else {
+        // Handle login error
+        console.error('Login failed', data);
+      }
+      })
+      .catch(error => {
+      console.error('Error:', error);
+      });
   };
 
   return (

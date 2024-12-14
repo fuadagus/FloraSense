@@ -5,7 +5,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 const ThumbnailCard = ({ imageSrc, title, children }) => {
     return (
         <View style={styles.thumbnailCard}>
-            <Image source={{ uri: imageSrc }} style={styles.thumbnailCardImage} />
+            <Image source={imageSrc} style={styles.thumbnailCardImage} />
             <Text style={styles.thumbnailCardTitle}>{title}</Text>
             <View style={styles.thumbnailCardContent}>
                 {children}
@@ -15,7 +15,7 @@ const ThumbnailCard = ({ imageSrc, title, children }) => {
 };
 
 ThumbnailCard.propTypes = {
-    imageSrc: PropTypes.string.isRequired,
+    imageSrc: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     children: PropTypes.node
 };
@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default ThumbnailCard;
+module.exports = ThumbnailCard;

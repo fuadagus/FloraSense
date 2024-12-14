@@ -31,9 +31,10 @@ const ProfileScreen = ({ isActive }: any) => {
   console.log("Profile")
   const [openLogoutAlertDialog, setOpenLogoutAlertDialog] =
     React.useState(false);
+
+
   return (
-    // <Text>Profile</Text>
-    <ScrollView >
+    <ScrollView>
       <VStack className="px-5 py-4 flex-1" space="lg">
         <Heading className="mb-1">Profile</Heading>
         <ProfileCard />
@@ -52,8 +53,9 @@ const ProfileScreen = ({ isActive }: any) => {
       <LogoutAlertDialog
         setOpenLogoutAlertDialog={setOpenLogoutAlertDialog}
         openLogoutAlertDialog={openLogoutAlertDialog}
+
       />
-      </ScrollView>
+    </ScrollView>
   );
 };
 

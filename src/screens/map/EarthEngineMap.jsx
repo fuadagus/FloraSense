@@ -1,80 +1,51 @@
-import InAppBrowser from 'react-native-inappbrowser-reborn';
-import React, { useState } from 'react';
-import { StyleSheet, View, Button, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import MapboxGL from '@rnmapbox/maps';
 
-const EEMap = () => {
-  const [isLoading, setIsLoading] = useState(false);
+const PUBLIC_ACCESS_TOKEN = "YOUR_MAPBOX_ACCESS_TOKEN";
 
-  const openInAppBrowser = async () => {
-    setIsLoading(true);
-    try {
-      const url = 'https://fuadagussalim.users.earthengine.app/view/florasense';
-      if (await InAppBrowser.isAvailable()) {
-        await InAppBrowser.open(url, {
-          // iOS Properties
-          dismissButtonStyle: 'cancel',
-          preferredBarTintColor: '#453AA4',
-          preferredControlTintColor: 'white',
-          readerMode: false,
-          animated: true,
-          modalPresentationStyle: 'fullScreen',
-          modalTransitionStyle: 'partialCurl',
-          modalEnabled: true,
-          enableBarCollapsing: false,
-          // Android Properties
-          showTitle: true,
-          toolbarColor: '#6200EE',
-          secondaryToolbarColor: 'black',
-          enableUrlBarHiding: true,
-          enableDefaultShare: true,
-          forceCloseOnRedirection: false,
-          animations: {
-            startEnter: 'slide_in_right',
-            startExit: 'slide_out_left',
-            endEnter: 'slide_in_left',
-            endExit: 'slide_out_right',
-          },
-          headers: {
-            'my-custom-header': 'my custom header value'
-          },
-        });
-      } else {
-        // Fallback to WebView or other handling
-        console.log('InAppBrowser is not available');
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+MapboxGL.setAccessToken(PUBLIC_ACCESS_TOKEN);
+
+const Map = () => {
+  const [tileUrl, setTileUrl] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://192.168.15.241:4000/gee/test")
+      .then((response) => response.json())
+      .then((data) => {
+        setTileUrl(data.tile_url);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching tile URL:", error);
+        setLoading(false);
+      });
+  }, []);
+
+ 
+console.log("Tile URL: ", tileUrl);
+
 
   return (
     <View style={styles.container}>
-      {isLoading && (
-        <ActivityIndicator
-          style={styles.loading}
-          size="large"
-          color="#0000ff"
-        />
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <MapboxGL.MapView style={styles.map}>
+          <MapboxGL.Camera zoomLevel={2} centerCoordinate={[0, 0]} />
+          <MapboxGL.RasterSource id="gee" tileUrlTemplates={[tileUrl]}>
+            <MapboxGL.RasterLayer id="gee-layer" />
+          </MapboxGL.RasterSource>
+        </MapboxGL.MapView>
       )}
-      <Button title="Open Map" onPress={openInAppBrowser} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loading: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -15 }, { translateY: -15 }],
-  },
+  container: { flex: 1 },
+  map: { flex: 1 },
 });
 
-export default EEMap;
+export default Map;
