@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ActivityIndicator, Text, } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Text, Alert, } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { AlertCircleIcon, ChevronDownIcon } from "@/components/ui/icon";
+import { HStack } from '@/components/ui';
 
 import {
   Select,
@@ -26,16 +27,57 @@ import {
   FormControlHelper,
   FormControlHelperText,
 } from "@/components/ui/form-control";
+import { Divider } from '@/components/ui';
 
 
-const Map = () => {
+const EarthEngineMap = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [analysis, setAnalysis] = useState('rainfall'); // Initial analysis value
+  const [showBandSelection, setShowBandSelection] = useState(false);
+  const [query, setQuery] = useState('rainfall');
+
+  const [band, setBand] = useState('b0');
+  const [latLng, setLatLng] = useState({ lat: null, lng: null });
+
+  const [rasterValue, setRasterValue] = useState(null);
+
 
   useEffect(() => {
     // Logic for handling WebView load success or failure can be added here
-  }, []);
+
+    if (latLng.lat && latLng.lng) {
+      console.log('Fetching raster value:', `http://192.168.15.241:4000/api/${analysis}-value?lat=${latLng.lat}&lon=${latLng.lng}&bandName=${band}`);
+
+      fetch(`http://192.168.15.241:4000/api/${analysis}-value?lat=${latLng.lat}&lon=${latLng.lng}&bandName=${band}`)
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data);
+            let value;
+            switch (analysis) {
+            case 'rainfall':
+              value = data.value.precipitation;
+              break;
+            case 'temperature':
+              value = data.value.LST_Day_1km;
+              break;
+            case 'soil-type':
+              value = data.value[band];
+            case 'soil-ph':
+              value = data.value[band];
+              break;
+            case 'elevation':
+              value = data.value.elevation;
+              break;
+            default:
+              value = null;
+            }
+            setRasterValue(value);
+            console.log(`Nilai ${analysis} pada kedalaman ${band}: ${value}`);
+        })
+        .catch((err) => console.error('Error fetching raster value:', err));
+    }
+  }, [latLng, band]);
 
   const onNavigationStateChange = (navState) => {
     if (navState.loading === false) {
@@ -45,7 +87,20 @@ const Map = () => {
 
   const handleAnalysisChange = (value) => {
     setAnalysis(value);
+    setQuery(value);
     setLoading(true);
+    if (value === 'soil-type' || value === 'soil-ph') {
+      setShowBandSelection(true);
+      setQuery(`${analysis}?bandName=b0`);
+    } else {
+      setShowBandSelection(false);
+    }
+  };
+
+  const handleBandChange = (value) => {
+
+    setBand(value);
+    setQuery(`${analysis}?bandName=${value}`);
   };
 
   const mapHTML = `
@@ -54,13 +109,14 @@ const Map = () => {
     <head>
       <style>
         #map-container {
-          height: 1000px;
+          height: 100%;
           width: 100%;
           background-color: #eee;
         }
         body{
           margin: 0;
           padding: 0;
+          height: 100vh;
         }
       </style>
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -83,9 +139,14 @@ const Map = () => {
             mapId
           });
           L.tileLayer(urlFormat).addTo(embeddedMap);
+          const marker = L.marker([-2.5489, 118.0149], { draggable: true }).addTo(embeddedMap);
+          marker.on('dragend', function (e) {
+          const { lat, lng } = e.target.getLatLng();
+           window.ReactNativeWebView.postMessage(JSON.stringify({ lat: lat, lng: lng }));
+          });
         };
 
-        fetch("http://192.168.15.241:4000/api/gee/${analysis}")
+        fetch("http://192.168.15.241:4000/api/gee/${query}")
           .then((response) => response.json())
           .then((data) => initialize(data.mapId.mapid, data.mapId.urlFormat))
           .catch((err) => console.error('Error loading map:', err));
@@ -100,11 +161,57 @@ const Map = () => {
 
       {/* WebView to display map */}
       <WebView
+        className='h-full'
         originWhitelist={['*']}
         source={{ html: mapHTML }}
         style={styles.webview}
         onNavigationStateChange={onNavigationStateChange}
+        onMessage={(event) => {
+          const data = JSON.parse(event.nativeEvent.data); // Parse the data received
+          console.log('Latitude:', data.lat, 'Longitude:', data.lng);
+          
+          
+          // You can use the data here, e.g., updating state
+          setLatLng(data);
+        }}
       />
+      {/* <HStack className='p-5'>
+  <Text>Latitude: {latLng.lat !== null ? latLng.lat.toFixed(4) : 'N/A'}, </Text>
+  <Text>Longitude: {latLng.lng !== null ? latLng.lng.toFixed(4) : 'N/A'}</Text>
+</HStack> */}
+
+      <Divider className='my-5' />
+      <HStack className='px-3'>
+
+      <Text >
+        {analysis === 'rainfall' && ' Curah Hujan'}
+        {analysis === 'temperature' && ' Suhu'}
+        {analysis === 'soil-type' && ' Jenis Tanah'}
+        {analysis === 'soil-ph' && ' pH Tanah'}
+        {analysis === 'elevation' && ' Ketinggian'}
+      </Text>
+      <Text > :  </Text>
+      <Text>{rasterValue === null ?'N/A':  analysis === 'soil-type'? '': rasterValue.toFixed(2)}</Text>
+      <Text >
+        {analysis === 'rainfall' && ' mm/tahun'}
+        {analysis === 'temperature' && ' °C'}
+        {analysis === 'soil-ph' && ' H2O'}
+        {analysis === 'soil-type' && rasterValue === 1 && 'Cl'}
+        {analysis === 'soil-type' && rasterValue === 2 && 'SiCl'}
+        {analysis === 'soil-type' && rasterValue === 3 && 'SaCl'}
+        {analysis === 'soil-type' && rasterValue === 4 && 'ClLo'}
+        {analysis === 'soil-type' && rasterValue === 5 && 'SiClLo'}
+        {analysis === 'soil-type' && rasterValue === 6 && 'SaClLo'}
+        {analysis === 'soil-type' && rasterValue === 7 && 'Lo'}
+        {analysis === 'soil-type' && rasterValue === 8 && 'SiLo'}
+        {analysis === 'soil-type' && rasterValue === 9 && 'SaLo'}
+        {analysis === 'soil-type' && rasterValue === 10 && 'Si'}
+        {analysis === 'soil-type' && rasterValue === 11 && 'LoSa'}
+        {analysis === 'soil-type' && rasterValue === 12 && 'Sa'} 
+        {analysis === 'elevation' && ' m'}
+
+      </Text>
+      </HStack>
 
       {/* Dropdown to select analysis type */}
       <FormControl isRequired className='m-5'>
@@ -116,32 +223,67 @@ const Map = () => {
             <SelectInput placeholder="Pilihan citra" className="flex-1 py-2" />
             <SelectIcon className="mr-3" as={ChevronDownIcon} />
           </SelectTrigger>
-          <SelectPortal>
+          <SelectPortal >
+            <SelectBackdrop />
+            <SelectContent>
+              <SelectDragIndicatorWrapper>
+                <SelectDragIndicator />
+              </SelectDragIndicatorWrapper>
+              <SelectItem label="Curah Hujan" value="rainfall" />
+              <SelectItem label="Suhu Permukaan" value="temperature" />
+              <SelectItem label="Jenis Tanah" value="soil-type" />
+              <SelectItem label="pH Tanah" value="soil-ph" />
+              <SelectItem label="Ketinggian" value="elevation" />
+            </SelectContent>
+          </SelectPortal>
+        </Select>
+        <FormControlHelper>
+          <FormControlHelperText>Pilih citra yang akan ditampilkan</FormControlHelperText>
+        </FormControlHelper>
+        <FormControlError><FormControlErrorIcon as={AlertCircleIcon} />
+          <FormControlErrorText>Wajib diisi</FormControlErrorText></FormControlError>
+      </FormControl>
+
+      {/* Conditional band selection */}
+      {showBandSelection && (
+        <FormControl isRequired className='m-5'>
+          <FormControlLabel>
+            <FormControlLabelText>Pilih Kedalaman</FormControlLabelText>
+          </FormControlLabel>
+          <Select onValueChange={handleBandChange}>
+            <SelectTrigger>
+              <SelectInput placeholder="Pilih kedalaman" className="flex-1 py-2" />
+              <SelectIcon className="mr-3" as={ChevronDownIcon} />
+            </SelectTrigger>
+            <SelectPortal>
               <SelectBackdrop />
               <SelectContent>
                 <SelectDragIndicatorWrapper>
                   <SelectDragIndicator />
                 </SelectDragIndicatorWrapper>
-                <SelectItem label="Curah Hujan" value="rainfall" />
-                <SelectItem label="Suhu Permukaan" value="temperature" />
-                <SelectItem label="Jenis Tanah" value="soiltype" />
-                <SelectItem label="pH Tanah" value="soilph" isDisabled={true} />
-                <SelectItem label="Ketinggian" value="elevation" />
+                <SelectItem label="Permukaan" value="b0" />
+                <SelectItem label="10 cm" value="b10" />
+                <SelectItem label="30 cm" value="b30" />
+                <SelectItem label="60 cm" value="b60" />
+                <SelectItem label="100 cm" value="b100" />
+                <SelectItem label="200 cm" value="b200" />
               </SelectContent>
-          </SelectPortal>
-        </Select>
-        <FormControlHelper>
-          <FormControlHelperText>You can only select one option</FormControlHelperText>
-        </FormControlHelper>
-        <FormControlError><FormControlErrorIcon as={AlertCircleIcon} />
-        <FormControlErrorText>Mandatory field</FormControlErrorText></FormControlError>
-      </FormControl>
+            </SelectPortal>
+          </Select>
+          <FormControlHelper>
+            <FormControlHelperText>Pilih kedalaman yang akan dianalisis</FormControlHelperText>
+          </FormControlHelper>
+          <FormControlError><FormControlErrorIcon as={AlertCircleIcon} />
+            <FormControlErrorText>Wajib diisi</FormControlErrorText></FormControlError>
+        </FormControl>
+      )}
+
       {/* Loading indicator */}
-      {loading && (
+      {/* {loading && (
         <View style={styles.loader}>
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
-      )}
+      )} */}
 
       {/* Error message */}
       {error && (
@@ -161,4 +303,4 @@ const styles = StyleSheet.create({
   select: { margin: 10 }, // Add some margin for the select component
 });
 
-export default Map;
+export default EarthEngineMap;

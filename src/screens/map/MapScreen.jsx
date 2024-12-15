@@ -3,7 +3,7 @@ import { StyleSheet, View, ActivityIndicator, Button } from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { HStack, Icon, Image, Link, LinkText, Card, Text, Heading, ArrowRightIcon } from '@/components/ui';
 
-const MapScreen = () => {
+const MapScreen = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const openInAppBrowser = async () => {
@@ -65,7 +65,7 @@ const MapScreen = () => {
         <Heading size="md" className="mb-4">
           Peta Parameter Lingkungan
         </Heading>
-        <Link href="" isExternal onPress={openInAppBrowser}>
+        <Link href="" isExternal onPress={() => navigation.navigate('EarthEngineMap', { mode: 'advance' })}>
           <HStack className="items-center">
             <LinkText
               size="sm"

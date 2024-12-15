@@ -31,6 +31,20 @@ const HomeStack = () => (
   </Stack.Navigator>
 );
 
+const MapsStack = () => (
+  <Stack.Navigator
+    initialRouteName="Map"
+    screenOptions={{
+      headerStyle: { backgroundColor: '#4CAF50' },
+      headerTintColor: '#fff',
+      headerTitleStyle: { fontWeight: 'bold' },
+    }}
+  >
+    <Stack.Screen name="Map" options={{ title: 'Peta' }}  component={MapScreen} />
+    <Stack.Screen name="EarthEngineMap"  options={{ title: 'Parameter lingkungan' }}  component={EarthEngineMap} />
+  </Stack.Navigator>
+);
+
 // Main Tab Navigator
 const TabNavigation = () => (
   <NavigationContainer>
@@ -55,7 +69,7 @@ const TabNavigation = () => (
       })}
     >
       <Tab.Screen name="Beranda" component={HomeStack} />
-      <Tab.Screen name="Peta" component={MapScreen} />
+      <Tab.Screen name="Peta" component={MapsStack} />
       <Tab.Screen name="Koleksi" component={EarthEngineMap} />
       <Tab.Screen name="Akun" component={ProfileScreen} />
     </Tab.Navigator>
