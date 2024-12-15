@@ -11,6 +11,8 @@ import ProfileScreen from './src/screens/profile/ProfileScreen';
 import EEMap from './src/screens/map/EarthEngineMap';
 import MapScreen from './src/screens/map/MapScreen';
 import EarthEngineMap from './src/screens/map/EarthEngineMap';
+import CollectionScreen from './src/screens/collection/CollectionScreen';
+import CreateArboretumForm from './src/screens/collection/AddCollectionScreen';
 
 // Create Navigators
 const Tab = createBottomTabNavigator();
@@ -44,6 +46,19 @@ const MapsStack = () => (
     <Stack.Screen name="EarthEngineMap"  options={{ title: 'Parameter lingkungan' }}  component={EarthEngineMap} />
   </Stack.Navigator>
 );
+const CollectionsStack = () => (
+  <Stack.Navigator
+    initialRouteName="CollectionScreen"
+    screenOptions={{
+      headerStyle: { backgroundColor: '#4CAF50' },
+      headerTintColor: '#fff',
+      headerTitleStyle: { fontWeight: 'bold' },
+    }}
+  >
+    <Stack.Screen name="CollectionScreen" options={{ title: 'Koleksi' }}  component={CollectionScreen} />
+    <Stack.Screen name="CreateArboretum" component={CreateArboretumForm} />
+  </Stack.Navigator>
+);
 
 // Main Tab Navigator
 const TabNavigation = () => (
@@ -70,7 +85,7 @@ const TabNavigation = () => (
     >
       <Tab.Screen name="Beranda" component={HomeStack} />
       <Tab.Screen name="Peta" component={MapsStack} />
-      <Tab.Screen name="Koleksi" component={EarthEngineMap} />
+      <Tab.Screen name="Koleksi" component={CollectionsStack} />
       <Tab.Screen name="Akun" component={ProfileScreen} />
     </Tab.Navigator>
   </NavigationContainer>

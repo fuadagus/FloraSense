@@ -107,6 +107,8 @@ const EarthEngineMap = () => {
   <!DOCTYPE html>
   <html>
     <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
       <style>
         #map-container {
           height: 100%;
@@ -117,6 +119,13 @@ const EarthEngineMap = () => {
           margin: 0;
           padding: 0;
           height: 100vh;
+        }
+        .leaflet-control-locate {
+          background-color: white;
+          border: 2px solid rgba(0,0,0,0.2);
+          border-radius: 4px;
+          cursor: pointer;
+          padding: 5px;
         }
       </style>
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -129,7 +138,7 @@ const EarthEngineMap = () => {
         const initialize = (mapId, urlFormat) => {
           const mapContainerEl = document.getElementById("map-container");
 
-          const embeddedMap = L.map(mapContainerEl).setView([-2.5489, 118.0149], 5); // Zoom to Indonesia
+          const embeddedMap = L.map(mapContainerEl).setView([-2.5489, 118.0149], 3); // Zoom to Indonesia
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -139,10 +148,37 @@ const EarthEngineMap = () => {
             mapId
           });
           L.tileLayer(urlFormat).addTo(embeddedMap);
+          
           const marker = L.marker([-2.5489, 118.0149], { draggable: true }).addTo(embeddedMap);
           marker.on('dragend', function (e) {
-          const { lat, lng } = e.target.getLatLng();
-           window.ReactNativeWebView.postMessage(JSON.stringify({ lat: lat, lng: lng }));
+            const { lat, lng } = e.target.getLatLng();
+            window.ReactNativeWebView.postMessage(JSON.stringify({ lat: lat, lng: lng }));
+          });
+
+          // Add geolocation control
+          const locateControl = L.control({ position: 'topright' });
+          locateControl.onAdd = function(map) {
+            const div = L.DomUtil.create('div', 'leaflet-control-locate');
+            div.innerHTML = '📍';
+            div.onclick = function() {
+              if (location.protocol === 'https:' || location.hostname === 'localhost') {
+                map.locate({ setView: true, maxZoom: 16 });
+              } else {
+                alert('Geolocation is only available on secure origins (HTTPS) or localhost.');
+              }
+            };
+            return div;
+          };
+          locateControl.addTo(embeddedMap);
+
+          embeddedMap.on('locationfound', function(e) {
+            const { lat, lng } = e.latlng;
+            marker.setLatLng(e.latlng);
+            window.ReactNativeWebView.postMessage(JSON.stringify({ lat: lat, lng: lng }));
+          });
+
+          embeddedMap.on('locationerror', function(e) {
+            alert(e.message);
           });
         };
 

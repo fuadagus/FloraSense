@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Toast, ToastTitle, useToast } from "@/components/ui/toast";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
@@ -27,6 +27,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   Icon,
+  CloseIcon
 } from "@/components/ui/icon";
 import { Button, ButtonText, ButtonIcon } from "@/components/ui/button";
 import { Keyboard } from "react-native";
@@ -34,25 +35,12 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle } from "lucide-react-native";
-import { GoogleIcon } from "./assets/icons/google";
+import { GoogleIcon } from "@/src/assets/icons/google";
 import { Pressable } from "@/components/ui/pressable";
-import useRouter from "@unitools/router";
-import { AuthLayout } from "../layout";
-
-const USERS = [
-  {
-    email: "gabrial@gmail.com",
-    password: "Gabrial@123",
-  },
-  {
-    email: "tom@gmail.com",
-    password: "Tom@123",
-  },
-  {
-    email: "thomas@gmail.com",
-    password: "Thomas@1234",
-  },
-];
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthLayout } from "./Layout";
+import { AuthContext } from '../../context/AuthContext';
+import { Modal, ModalBackdrop, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader } from "@/components/ui";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email(),
@@ -63,6 +51,33 @@ const loginSchema = z.object({
 type LoginSchemaType = z.infer<typeof loginSchema>;
 
 const LoginWithLeftBackground = () => {
+  const [showModal, setShowModal] = React.useState(false)
+  const [modalMessege, setModalMessage] = React.useState('')
+  const { login } = useContext(AuthContext);
+
+  const handleLogin = async ({email, password}) => {
+    try {
+      const response = await fetch('http://192.168.15.241:4000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (data.token) {
+        await AsyncStorage.setItem('token', data.token);
+        login(data.token);
+      } else {
+        console.error('Login failed', data);
+        setModalMessage(data.message);
+        setShowModal(true);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const {
     control,
     handleSubmit,
@@ -78,27 +93,7 @@ const LoginWithLeftBackground = () => {
   });
 
   const onSubmit = (data: LoginSchemaType) => {
-    const user = USERS.find((element) => element.email === data.email);
-    if (user) {
-      if (user.password !== data.password)
-        setValidated({ emailValid: true, passwordValid: false });
-      else {
-        setValidated({ emailValid: true, passwordValid: true });
-        toast.show({
-          placement: "bottom right",
-          render: ({ id }) => {
-            return (
-              <Toast nativeID={id} variant="accent" action="success">
-                <ToastTitle>Logged in successfully!</ToastTitle>
-              </Toast>
-            );
-          },
-        });
-        reset();
-      }
-    } else {
-      setValidated({ emailValid: false, passwordValid: true });
-    }
+    handleLogin(data);
   };
   const [showPassword, setShowPassword] = useState(false);
 
@@ -111,13 +106,13 @@ const LoginWithLeftBackground = () => {
     Keyboard.dismiss();
     handleSubmit(onSubmit)();
   };
-  const router = useRouter();
+
   return (
     <VStack className="max-w-[440px] w-full" space="md">
       <VStack className="md:items-center" space="md">
         <Pressable
           onPress={() => {
-            router.back();
+            // router.back();
           }}
         >
           <Icon
@@ -157,7 +152,7 @@ const LoginWithLeftBackground = () => {
                 },
               }}
               render={({ field: { onChange, onBlur, value } }) => (
-                <Input>
+                <Input >
                   <InputField
                     placeholder="Enter email"
                     value={value}
@@ -177,7 +172,6 @@ const LoginWithLeftBackground = () => {
               </FormControlErrorText>
             </FormControlError>
           </FormControl>
-          {/* Label Message */}
           <FormControl
             isInvalid={!!errors.password || !validated.passwordValid}
             className="w-full"
@@ -277,6 +271,43 @@ const LoginWithLeftBackground = () => {
               Sign up
             </LinkText>
           </Link>
+          <Modal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false)
+        }}
+        size="md"
+      >
+        <ModalBackdrop />
+        <ModalContent >
+          <ModalHeader>
+            <Heading size="md" className="text-typography-950 ">
+              Login Gagal
+            </Heading>
+            <ModalCloseButton>
+              <Icon
+                as={CloseIcon}
+                size="md"
+                className="stroke-background-400  group-[:hover]/modal-close-button:stroke-background-700 group-[:active]/modal-close-button:stroke-background-900 group-[:focus-visible]/modal-close-button:stroke-background-900"
+              />
+            </ModalCloseButton>
+          </ModalHeader>
+          <ModalBody>
+            <Text size="sm" className="text-typography-500">
+              {modalMessege}
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              onPress={() => {
+                setShowModal(false)
+              }}
+            >
+              <ButtonText>OK</ButtonText>
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
         </HStack>
       </VStack>
     </VStack>

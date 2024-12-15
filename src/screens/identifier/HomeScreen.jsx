@@ -1,5 +1,3 @@
-// import React from 'react';
-// import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import {
     View,
@@ -10,28 +8,85 @@ import {
     StyleSheet,
     Alert,
     TouchableOpacity,
+    PermissionsAndroid
 } from 'react-native';
 import { launchCamera } from 'react-native-image-picker';
 import axios from 'axios';
 import { HStack, Icon, Image, Link, LinkText, Card, Text, Heading, ArrowRightIcon } from '@/components/ui';
-// import { API_KEY, API_URL } from '@env';
 
 import Config from "react-native-config";
-import ThumbnailCard from '../../components/cards/ThumbnailCard';
+import { Geolocation } from '@capacitor/geolocation';
 
 const API_URL = Config.API_URL;
 const API_KEY = Config.API_KEY;
 
-
 const HomeScreen = ({ navigation }) => {
+    const [locations, setLocations] = useState(null);
     const [selectedImages, setSelectedImages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
 
-    // const API_KEY = '2b10qZDQL5xzHdc9c2b5mKZ4ku'; // Replace with your actual API key
-    // const API_URL = 'https://my-api.plantnet.org/v2/identify/all';
+    // Fungsi untuk meminta izin lokasi
+    const requestLocationPermission = async () => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                {
+                    title: 'Geolocation Permission',
+                    message: 'Can we access your location?',
+                    buttonNeutral: 'Ask Me Later',
+                    buttonNegative: 'Cancel',
+                    buttonPositive: 'OK',
+                },
+            );
+            return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } catch (err) {
+            console.error('Error requesting location permission:', err);
+            return false;
+        }
+    };
 
+    const getLocation = async () => {
+        console.log('Requesting location permission...');
+
+        const permissionGranted = await requestLocationPermission();
+        if (permissionGranted) {
+            console.log('Permission granted. Fetching location...');
+            const coordinates = await Geolocation.getCurrentPosition();
+            // Geolocation.getCurrentPosition(
+            //     position => {
+            //         setLocations(position.coords);
+            //         console.log('Location fetched successfully:', position.coords);
+            //     },
+            //     error => {
+            //         console.error('Error fetching location:', error.code, error.message);
+            //         Alert.alert('Error', `Unable to fetch location: ${error.message}`);
+            //     },
+            //     { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
+            // );
+            // Geolocation.getLocation(
+            //     position => {
+            //         console.log('Location updated:', position.coords);
+            //         setLocations(position.coords);
+            //     },
+            //     error => {
+            //         console.error('Error watching position:', error.code, error.message);
+            //         Alert.alert('Error', `Unable to fetch location: ${error.message}`);
+            //     },
+            //     { enableHighAccuracy: true, distanceFilter: 0 }
+            // );
+            
+
+            console.log('Current position:', coordinates);
+            
+        } else {
+            console.log('Permission denied.');
+            Alert.alert('Permission Denied', 'Location permission is required to fetch location.');
+        }
+    };
+    
+    // Fungsi untuk meluncurkan kamera
     const handleCameraLaunch = async () => {
         const result = await launchCamera({
             mediaType: 'photo',
@@ -39,17 +94,16 @@ const HomeScreen = ({ navigation }) => {
         });
 
         if (result.didCancel) {
-            Alert.alert('Dibatalkan', 'Anda perlu mengambil foto untuk mengidentifikasi.');
-            // Back to home stack
-            navigation.navigate('Home'); // Assuming you have a navigation prop and a 'Home' route
+            Alert.alert('Cancelled', 'Camera action cancelled.');
         } else if (result.assets) {
             setSelectedImages(result.assets);
             identifyPlant(result.assets);
         } else {
-            Alert.alert('Error', 'Failed to access the camera. Please try again.');
+            Alert.alert('Error', 'Failed to access the camera.');
         }
     };
 
+    // Fungsi untuk identifikasi tanaman
     const identifyPlant = async (images) => {
         setLoading(true);
 
@@ -62,26 +116,25 @@ const HomeScreen = ({ navigation }) => {
             });
         });
 
-        // Adding the organs array to FormData
-        formData.append('organs', 'auto'); // Adjust the value based on the API requirements
+        formData.append('organs', 'auto');
 
-        // Other parameters (like language) can also be added if required in the request body
-        // formData.append('lang', 'en'); // Example of adding another parameter
+        if (locations) {
+            formData.append('latitude', locations.latitude);
+            formData.append('longitude', locations.longitude);
+        }
 
-        const url = `${API_URL}?api-key=${API_KEY}`; // Only the API key as a query parameter
+        const url = `${API_URL}?api-key=${API_KEY}`;
 
         try {
             const response = await axios.post(url, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                headers: { 'Content-Type': 'multipart/form-data' },
             });
 
             setResults(response.data.results || []);
             setModalVisible(true);
         } catch (error) {
             console.error('Error identifying plant:', error);
-            alert('Failed to identify the plant. Please try again.');
+            Alert.alert('Error', 'Failed to identify the plant. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -89,11 +142,8 @@ const HomeScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Card className="p-5 rounded-lg max-w-[360px] m-3">
-                <TouchableOpacity
-
-                    onPress={() => handleCameraLaunch()}
-                >
+            <Card variant='outline' className="p-5 rounded-lg max-w-[360px] m-3">
+                <TouchableOpacity onPress={handleCameraLaunch}>
                     <Image
                         source={require('@/src/assets/Identification.webp')}
                         className="mb-6 h-[240px] w-full rounded-md aspect-[263/240]"
@@ -103,19 +153,16 @@ const HomeScreen = ({ navigation }) => {
                 <Text className="text-sm font-normal mb-2 text-typography-700 max-w-[280px]">
                     Kenali tanaman di sekitar Anda dengan cepat dan mudah menggunakan teknologi AI
                 </Text>
-                <Link href="" onPress={() => navigation.navigate('AdvanceScreen', { mode: 'advance' })} isExternal >
+                <Link
+                    href=""
+                    onPress={() => navigation.navigate('AdvanceScreen', { mode: 'advance' })}
+                    isExternal
+                >
                     <HStack className="items-center">
-                        <LinkText
-                            size="sm"
-                            className="font-semibold text-info-600 no-underline"
-                        >
+                        <LinkText size="sm" className="font-semibold text-info-600 no-underline">
                             Mode Lanjut
                         </LinkText>
-                        <Icon
-                            as={ArrowRightIcon}
-                            size="sm"
-                            className="text-info-600 mt-0.5 ml-0.5"
-                        />
+                        <Icon as={ArrowRightIcon} size="sm" className="text-info-600 mt-0.5 ml-0.5" />
                     </HStack>
                 </Link>
                 <Heading size="md" className="mb-4">
@@ -123,15 +170,17 @@ const HomeScreen = ({ navigation }) => {
                 </Heading>
             </Card>
 
+            <View style={styles.locationContainer}>
+                <Button title="Get Location" onPress={getLocation} />
+                {locations && (
+                    <>
+                        <Text>Latitude: {locations.latitude}</Text>
+                        <Text>Longitude: {locations.longitude}</Text>
+                    </>
+                )}
+            </View>
 
-            {/* <Text style={styles.title}>Identifikasi Tanaman</Text> */}
-
-            <Modal
-                animationType="slide"
-                transparent={false}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
+            <Modal visible={modalVisible} transparent={false} animationType="slide">
                 <View style={modalStyles.container}>
                     <FlatList
                         data={results}
@@ -144,83 +193,30 @@ const HomeScreen = ({ navigation }) => {
                                         style={modalStyles.resultImage}
                                     />
                                 )}
-                                <Text style={modalStyles.resultText}>
-                                    Scientific Name: {item.species?.scientificName || 'N/A'}
-                                </Text>
-                                <Text style={modalStyles.resultText}>
-                                    Common Names:{' '}
-                                    {item.species?.commonNames?.length
-                                        ? item.species.commonNames.join(', ')
-                                        : 'N/A'}
-                                </Text>
-                                <Text style={modalStyles.resultText}>
-                                    Confidence Score: {(item.score * 100).toFixed(2)}%
-                                </Text>
+                                <Text>Scientific Name: {item.species?.scientificName || 'N/A'}</Text>
+                                <Text>Common Names: {item.species?.commonNames?.join(', ') || 'N/A'}</Text>
+                                <Text>Confidence Score: {(item.score * 100).toFixed(2)}%</Text>
                             </View>
                         )}
                     />
                     <Button title="Close" onPress={() => setModalVisible(false)} />
                 </View>
             </Modal>
-            {loading && <ActivityIndicator size="large" color="#00ff00" />}
 
-        </View >
+            {loading && <ActivityIndicator size="large" color="#00ff00" />}
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'flex-start', // Changed from 'center' to 'flex-start'
-        alignItems: 'center',
-        backgroundColor: '#fff',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    modeSelection: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '100%',
-        paddingHorizontal: 20,
-    },
-    card: {
-        width: '40%',
-        padding: 20,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    cardText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
+    container: { flex: 1, alignItems: 'center', backgroundColor: '#fff' },
+    locationContainer: { marginTop: 20, padding: 10 },
 });
 
 const modalStyles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#fff',
-    },
-    result: {
-        padding: 10,
-        marginVertical: 5,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-    },
-    resultImage: {
-        width: '100%',
-        height: 200,
-        resizeMode: 'contain',
-        marginBottom: 10,
-    },
-    resultText: {
-        fontSize: 16,
-    },
+    container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+    result: { padding: 10, marginVertical: 5, borderWidth: 1, borderColor: '#ccc', borderRadius: 5 },
+    resultImage: { width: '100%', height: 200, resizeMode: 'contain' },
 });
 
 export default HomeScreen;
