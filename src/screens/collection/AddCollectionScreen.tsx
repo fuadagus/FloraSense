@@ -4,17 +4,15 @@ import { TextInput, Button, Text } from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// The URL for the route to get user data
 const USER_API_URL = 'http://192.168.15.241:4000/auth/user';
 
 const CreateArboretumForm = ({ navigation }) => {
-  // State for form data
   const [arboretumName, setArboretumName] = useState('');
   const [arboretumLocation, setArboretumLocation] = useState('');
   const [arboretumDescription, setArboretumDescription] = useState('');
   const [userData, setUserData] = useState(null); // Store fetched user data
+  const [loading, setLoading] = useState(false); // Loading state for form submission
 
-  // Fetch authenticated user data
   const getUserData = async () => {
     try {
       const token = await AsyncStorage.getItem('token'); // Get token from AsyncStorage
@@ -32,20 +30,24 @@ const CreateArboretumForm = ({ navigation }) => {
     }
   };
 
-  // Fetch user data on component mount
   useEffect(() => {
     getUserData();
   }, []);
 
-  // Submit the arboretum data
   const handleSubmit = async () => {
     if (!arboretumName || !arboretumLocation || !arboretumDescription) {
       Alert.alert('All fields are required.');
       return;
     }
+    if (!userData) {
+      Alert.alert('User data is not loaded yet. Please try again later.');
+      return;
+    }
 
     try {
+      setLoading(true);
       const token = await AsyncStorage.getItem('token');
+      console.log('User data:', userData);
       const response = await fetch('http://192.168.15.241:4000/api/arboretums', {
         method: 'POST',
         headers: {
@@ -56,7 +58,7 @@ const CreateArboretumForm = ({ navigation }) => {
           name: arboretumName,
           location: arboretumLocation,
           description: arboretumDescription,
-          userId: userData ? userData.id : null
+          userId: userData.user.id // Ensure userId is correctly passed
         })
       });
 
@@ -71,6 +73,8 @@ const CreateArboretumForm = ({ navigation }) => {
     } catch (error) {
       console.error('Error submitting form:', error);
       Alert.alert('Failed to create arboretum');
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -115,6 +119,8 @@ const CreateArboretumForm = ({ navigation }) => {
           contentStyle={styles.buttonContent}
           labelStyle={styles.buttonLabel}
           theme={{ colors: { primary: '#FFA500' } }} // Set the button background color to orange
+          loading={loading} // Show loading spinner when submitting
+          disabled={loading} // Disable button when loading
         >
           Save Arboretum
         </Button>
@@ -155,7 +161,7 @@ const styles = StyleSheet.create({
   buttonLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff', // Set the button text color to white
+    color: '#fff',
   },
 });
 
