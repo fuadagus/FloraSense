@@ -22,3 +22,9 @@ Map: ![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&
 
 
 API: ![PlanNet](https://img.shields.io/badge/PlanNet-FF6F00?style=for-the-badge) ![EarthEngine](https://img.shields.io/badge/EarthEngine-34A853?style=for-the-badge&logo=google-earth&logoColor=white)
+
+
+## Sumber Data
+1. Google Earth Engine Collection
+2. PlantNet
+3. Naturalist
