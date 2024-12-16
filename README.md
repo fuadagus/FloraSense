@@ -34,7 +34,7 @@ API: ![PlanNet](https://img.shields.io/badge/PlanNet-FF6F00?style=for-the-badge)
 - [x] JWT
 - [x] Earth Engine Analysis
 - [x] Plant Identification
-- [ ] Species Distribustion
 - [ ] Arboretum Collection
+- [ ] Species Distribustion
 - [ ] Geotag Mapping
 
