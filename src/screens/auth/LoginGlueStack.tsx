@@ -152,7 +152,7 @@ const LoginWithLeftBackground = () => {
                 },
               }}
               render={({ field: { onChange, onBlur, value } }) => (
-                <Input >
+                <Input>
                   <InputField
                     placeholder="Enter email"
                     value={value}

@@ -8,3 +8,13 @@ Mobile App Arboretum Biodiversity Mapping and Visualization System adalah solusi
 
 ![alt text](image_lingkungan.png)
 ![alt text](image_lingkungan2.png)
+
+
+## Framework dan Stack
+DB: MongoDB
+Front-End: React-Native
+Server: Express-JS 
+Map: Leaflet & MapBox
+API: PlanNet & EarthEngine
+
+
