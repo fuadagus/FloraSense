@@ -7,3 +7,4 @@ Mobile App Arboretum Biodiversity Mapping and Visualization System adalah solusi
 ## Identifikasi Lingkungan
 
 ![alt text](image_lingkungan.png)
+![alt text](image_lingkungan2.png)
