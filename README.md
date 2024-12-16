@@ -28,3 +28,13 @@ API: ![PlanNet](https://img.shields.io/badge/PlanNet-FF6F00?style=for-the-badge)
 1. Google Earth Engine Collection
 2. PlantNet
 3. Naturalist
+
+## Roadmap
+- [x] Authentication & Authorization
+- [x] JWT
+- [x] Earth Engine Analysis
+- [x] Plant Identification
+- [ ] Species Distribustion
+- [ ] Arboretum Collection
+- [ ] Geotag Mapping
+
