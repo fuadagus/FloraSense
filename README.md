@@ -37,4 +37,5 @@ API: ![PlanNet](https://img.shields.io/badge/PlanNet-FF6F00?style=for-the-badge)
 - [ ] Arboretum Collection
 - [ ] Species Distribustion
 - [ ] Geotag Mapping
+- [ ] Dashboard
 
